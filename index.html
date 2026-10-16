@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#B70000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <title>Навигатор мастер-классов | ЕЭТК</title>
+  <style>
+    :root {
+      --brand-base: #B70000;
+      --grad-start: #FF1E38;
+      --grad-end: #FF6B00;
+      --brand-gradient: linear-gradient(135deg, var(--grad-start) 0%, var(--grad-end) 100%);
+      --bg: #fdf8f8;
+      --card-bg: #ffffff;
+      --text: #1e1b1b;
+      --text-muted: #645a5a;
+      --border: #f0dada;
+      --accent-bg: #fff5f5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, #ffe8e0 0%, #fdf8f8 55%, #f9f1f1 100%);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .quiz-container {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 600px;
+      margin: auto 0;
+      border-radius: 24px;
+      box-shadow: 0 10px 32px rgba(183, 0, 0, 0.1);
+      border: 1px solid rgba(255, 30, 56, 0.12);
+      padding: clamp(18px, 4.5vw, 28px) clamp(14px, 4vw, 24px);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    /* Верхняя декоративная полоса в фирменном градиенте */
+    .quiz-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--brand-gradient);
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .logo-img, .logo-svg {
+      width: clamp(40px, 11vw, 54px);
+      height: clamp(40px, 11vw, 54px);
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .college-title {
+      font-size: clamp(11.5px, 2.9vw, 13px);
+      font-weight: 700;
+      color: var(--brand-base);
+      line-height: 1.25;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .header-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--brand-gradient);
+      color: #ffffff;
+      font-size: clamp(10px, 2.6vw, 12px);
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 3px 8px rgba(255, 30, 56, 0.22);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    h1 {
+      font-size: clamp(20px, 5.2vw, 24px);
+      line-height: 1.28;
+      margin-bottom: 10px;
+      color: var(--text);
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: clamp(13.5px, 3.6vw, 15px);
+      line-height: 1.5;
+      margin-bottom: 20px;
+      overflow-wrap: break-word;
+    }
+
+    /* Навигация и индикаторы в тесте */
+    .quiz-nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+      min-height: 28px;
+    }
+
+    .btn-prev {
+      background: none;
+      border: none;
+      color: var(--brand-base);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px 4px 2px;
+      border-radius: 6px;
+      touch-action: manipulation;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .btn-prev:active {
+      transform: translateX(-2px);
+      opacity: 0.7;
+    }
+
+    .btn-prev.hidden-nav {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .question-step {
+      font-size: clamp(12px, 3vw, 13px);
+      color: var(--brand-base);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #f5e6e6;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--brand-gradient);
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .question-title {
+      font-size: clamp(16.5px, 4.4vw, 19px);
+      font-weight: 700;
+      margin-bottom: 15px;
+      line-height: 1.35;
+      overflow-wrap: break-word;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .option-btn {
+      background: #fffafa;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: clamp(11px, 3vw, 14px) clamp(12px, 3.5vw, 16px);
+      text-align: left;
+      font-size: clamp(13.5px, 3.5vw, 15px);
+      line-height: 1.38;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 50px;
+      width: 100%;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .option-btn:hover {
+        border-color: var(--grad-start);
+        background: var(--accent-bg);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 30, 56, 0.1);
+      }
+    }
+
+    .option-btn:active {
+      transform: scale(0.985);
+      background: #ffebeb;
+      border-color: var(--grad-start);
+    }
+
+    .option-icon {
+      font-size: clamp(19px, 5vw, 22px);
+      line-height: 1;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      text-align: center;
+    }
+
+    .option-text {
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: break-word;
+    }
+
+    .primary-btn {
+      width: 100%;
+      background: var(--brand-gradient);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: clamp(14px, 3.8vw, 16px);
+      font-size: clamp(15px, 3.8vw, 16px);
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.12s ease;
+      margin-top: 12px;
+      box-shadow: 0 5px 16px rgba(255, 30, 56, 0.28);
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .primary-btn:hover {
+        background: var(--brand-base);
+        box-shadow: 0 6px 20px rgba(183, 0, 0, 0.4);
+      }
+    }
+
+    .primary-btn:active {
+      transform: scale(0.985);
+      opacity: 0.92;
+    }
+
+    .secondary-btn {
+      width: 100%;
+      background: #ffffff;
+      color: var(--brand-base);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: clamp(12px, 3.5vw, 14px);
+      font-size: clamp(14px, 3.5vw, 15px);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-top: 9px;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .secondary-btn:hover {
+        border-color: var(--grad-start);
+        background: var(--accent-bg);
+      }
+    }
+
+    .secondary-btn:active {
+      transform: scale(0.985);
+      background: #ffebeb;
+    }
+
+    .result-card {
+      border: 2px solid var(--grad-start);
+      background: var(--accent-bg);
+      border-radius: 16px;
+      padding: clamp(14px, 3.8vw, 18px);
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .room-badge {
+      display: inline-block;
+      background: var(--brand-gradient);
+      color: #fff;
+      font-weight: 800;
+      font-size: clamp(14.5px, 3.8vw, 16.5px);
+      padding: 4px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      box-shadow: 0 3px 8px rgba(183, 0, 0, 0.18);
+    }
+
+    .workshop-title {
+      font-size: clamp(15.5px, 4vw, 17px);
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+      line-height: 1.35;
+      overflow-wrap: break-word;
+    }
+
+    .specialty-tag {
+      font-size: clamp(12px, 3.2vw, 13px);
+      color: var(--text-muted);
+      background: #ffffff;
+      padding: 8px 11px;
+      border-radius: 10px;
+      border-left: 3.5px solid var(--brand-base);
+      line-height: 1.4;
+      overflow-wrap: break-word;
+    }
+
+    .specialty-tag strong {
+      color: var(--brand-base);
+    }
+
+    .hint-box {
+      background: #ffffff;
+      border: 1px dashed #e8caca;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 12px 0 6px 0;
+      font-size: clamp(12px, 3vw, 13px);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .hint-box span:first-child {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Всплывающее уведомление (Toast) */
+    .toast {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(50px);
+      background: #1e1b1b;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 1000;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .fade-anim {
+      animation: fadeIn 0.22s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Дополнительные медиа-запросы для узких экранов */
+    @media (max-width: 380px) {
+      body {
+        padding: 8px;
+      }
+      .quiz-container {
+        padding: 16px 12px;
+        border-radius: 18px;
+      }
+      .top-bar {
+        gap: 6px;
+      }
+      .header-badge {
+        font-size: 9.5px;
+        padding: 4px 7px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <!-- Шапка с логотипом ЕЭТК -->
+  <div class="top-bar">
+    <div class="logo-wrap">
+      <!-- Если рядом лежит Artboard 1.png, загрузится он; если нет — включится встроенный векторный логотип ЕЭТК -->
+      <img src="Artboard 1.png" alt="ЕЭТК" class="logo-img" onerror="this.style.display='none'; document.getElementById('fallback-svg').style.display='block';">
+      <svg id="fallback-svg" class="logo-svg" style="display:none;" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <mask id="cuts">
+            <rect width="200" height="200" fill="white"/>
+            <!-- Фирменные пересекающиеся белые линии разреза -->
+            <line x1="94" y1="15" x2="98" y2="185" stroke="black" stroke-width="3.5"/>
+            <line x1="102" y1="15" x2="91" y2="185" stroke="black" stroke-width="3.5"/>
+            <line x1="15" y1="90" x2="185" y2="100" stroke="black" stroke-width="3.5"/>
+            <line x1="15" y1="103" x2="185" y2="98" stroke="black" stroke-width="3.5"/>
+          </mask>
+        </defs>
+        <g fill="#B70000" mask="url(#cuts)">
+          <!-- Верхний блок ЕЭ (стрелка) -->
+          <path d="M 24 26 H 158 L 188 64 L 158 102 H 24 Z"/>
+          <rect x="39" y="41" width="108" height="14" fill="white"/>
+          <rect x="39" y="71" width="108" height="14" fill="white"/>
+          <!-- Буква Т -->
+          <path d="M 24 94 H 96 V 114 H 70 V 178 H 54 V 114 H 24 Z"/>
+          <!-- Буква К -->
+          <path d="M 96 102 H 114 V 134 L 138 102 H 158 L 128 138 L 158 178 H 138 L 114 144 V 178 H 96 Z"/>
+        </g>
+      </svg>
+      <div class="college-title">Навигатор<br>абитуриента</div>
+    </div>
+    <span class="header-badge">День открытых дверей</span>
+  </div>
+
+  <!-- Стартовый экран -->
+  <div id="start-screen" class="fade-anim">
+    <h1>Узнай, на какие мастер-классы тебе точно стоит пойти!</h1>
+    <p class="subtitle">Ответь на 8 коротких вопросов о своих интересах, и алгоритм подберет <strong>2 лучших кабинета</strong> и специальности, которые подойдут именно тебе.</p>
+    <button class="primary-btn" onclick="startQuiz()">Пройти тест 🚀</button>
+  </div>
+
+  <!-- Экран вопросов -->
+  <div id="quiz-screen" class="hidden">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="quiz-nav-row">
+      <button id="btn-prev" class="btn-prev hidden-nav" onclick="prevQuestion()" aria-label="Предыдущий вопрос">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Назад
+      </button>
+      <div class="question-step" id="question-step">Вопрос 1 из 8</div>
+    </div>
+    <div id="question-wrapper">
+      <div class="question-title" id="question-title"></div>
+      <div class="options-list" id="options-list"></div>
+    </div>
+  </div>
+
+  <!-- Экран результатов -->
+  <div id="result-screen" class="hidden">
+    <h1>Твой персональный маршрут готов! 🔥</h1>
+    <p class="subtitle">Тебе больше всего подойдут эти <strong>2 мастер-класса</strong>. Сделай скриншот экрана, чтобы не потерять номера кабинетов:</p>
+    <div id="results-container"></div>
+    <div class="hint-box">
+      <span>💡</span>
+      <span>Сделай скриншот или скопируй маршрут, чтобы легко ориентироваться на этажах колледжа.</span>
+    </div>
+    <button class="primary-btn" id="btn-share" onclick="shareOrCopyResults()">
+      <span>Поделиться маршрутом 📲</span>
+    </button>
+    <button class="secondary-btn" onclick="resetQuiz()">
+      <span>Пройти тест заново 🔄</span>
+    </button>
+  </div>
+</div>
+
+<div id="toast" class="toast">Маршрут скопирован! ✓</div>
+
+<script>
+  const rooms = {
+    "101": {
+      number: "Каб. 101",
+      title: "Разработка мобильного приложения на платформе 1С: Предприятие",
+      spec: "09.02.11 Разработка и управление программным обеспечением • 38.02.08 Торговое дело"
+    },
+    "111": {
+      number: "Каб. 111",
+      title: "Первые шаги холодильщика",
+      spec: "15.02.06 Монтаж, техническая эксплуатация и ремонт холодильно-компрессорных и теплонасосных машин и установок (по отраслям)"
+    },
+    "204": {
+      number: "Каб. 204",
+      title: "Фоторобот / Дактилоскопирование",
+      spec: "40.02.02 Правоохранительная деятельность"
+    },
+    "215": {
+      number: "Каб. 215",
+      title: "Начисление заработной платы",
+      spec: "38.02.01 Экономика и бухгалтерский учет • 38.02.08 Торговое дело"
+    },
+    "304": {
+      number: "Каб. 304",
+      title: "SQL-детектив: Поймай преступника, написав запросы",
+      spec: "09.02.11 Разработка и управление программным обеспечением"
+    },
+    "305": {
+      number: "Каб. 305",
+      title: "Безопасный интерфейс",
+      spec: "09.02.11 Разработка и управление программным обеспечением"
+    },
+    "310": {
+      number: "Каб. 310",
+      title: "Правоохранительная деятельность",
+      spec: "40.02.02 Правоохранительная деятельность"
+    },
+    "311": {
+      number: "Каб. 311",
+      title: "Создание первой локальной сети",
+      spec: "09.02.11 Разработка и управление программным обеспечением"
+    },
+    "401": {
+      number: "Каб. 401",
+      title: "Условные операторы в программировании",
+      spec: "09.02.11 Разработка и управление программным обеспечением"
+    },
+    "408": {
+      number: "Каб. 408",
+      title: "Составление социальной карты района",
+      spec: "40.02.04 Юриспруденция («Юрист в сфере социального обеспечения»)"
+    }
+  };
+
+  const questions = [
+    {
+      text: "Представь, что ты с командой создаешь проект «Умного города». Какую задачу заберешь себе?",
+      options: [
+        { icon: "📱", text: "Сделаю мобильное приложение и продуманный безопасный интерфейс для жителей", weights: ["101", "305"] },
+        { icon: "🕵️‍♂️", text: "Займусь безопасностью улиц, расследованием инцидентов и поиском нарушителей", weights: ["204", "310"] },
+        { icon: "🛠️", text: "Настрою связь, локальную сеть и климатические системы для серверных и зданий", weights: ["111", "311"] },
+        { icon: "📊", text: "Рассчитаю бюджет, зарплаты команды и спланирую социальную карту района", weights: ["215", "408"] },
+        { icon: "💻", text: "Напишу код и алгоритмы поиска по базам данных для городских камер", weights: ["304", "401"] }
+      ]
+    },
+    {
+      text: "На каких уроках в школе тебе обычно интереснее всего?",
+      options: [
+        { icon: "🖥️", text: "Информатика: алгоритмы, код, программы и базы данных", weights: ["401", "304", "101"] },
+        { icon: "⚡", text: "Физика и труд/технология: понимать, как устроены приборы, сети и техника", weights: ["111", "311"] },
+        { icon: "⚖️", text: "Обществознание и история: законы, права человека и устройство общества", weights: ["310", "408"] },
+        { icon: "📐", text: "Математика: точные расчеты, проценты, финансы и выгода", weights: ["215"] },
+        { icon: "🔍", text: "ОБЖ, биология или черчение: внимание к деталям, уликам и визуалу", weights: ["204", "305"] }
+      ]
+    },
+    {
+      text: "Какой формат практики на мастер-классе звучит для тебя круче всего?",
+      options: [
+        { icon: "🔍", text: "Снять настоящие отпечатки пальцев и составить фоторобот подозреваемого", weights: ["204", "310"] },
+        { icon: "🧩", text: "Поймать преступника с помощью SQL-запросов к базе или написать свой скрипт", weights: ["304", "401"] },
+        { icon: "❄️", text: "Поработать руками с реальным оборудованием, трубками, кабелями и техникой", weights: ["111", "311"] },
+        { icon: "💰", text: "Разобраться, как начисляются деньги, премии и как автоматизировать бизнес", weights: ["215", "101"] },
+        { icon: "🗺️", text: "Спроектировать социальную карту района или защищенный интерфейс сайта", weights: ["408", "305"] }
+      ]
+    },
+    {
+      text: "Если бы ты выбирал сериал или игру на вечер, какой сюжет тебя бы зацепил?",
+      options: [
+        { icon: "🚓", text: "Детектив и расследования: улики, криминалистика, погони и закон", weights: ["204", "310"] },
+        { icon: "👾", text: "Киберпанк про разработчиков, хакеров, защиту данных и код", weights: ["304", "305", "401"] },
+        { icon: "🏙️", text: "Экономический симулятор: управление компанией, торговлей и городом", weights: ["215", "101", "408"] },
+        { icon: "⚙️", text: "Инженерный крафт: сборка сложных машин, охлаждения и сетевой инфраструктуры", weights: ["111", "311"] }
+      ]
+    },
+    {
+      text: "Какая суперспособность в работе тебе ближе?",
+      options: [
+        { icon: "🧠", text: "Железная логика: задавать условия «если — то» и находить иголку в стоге данных", weights: ["401", "304"] },
+        { icon: "🔧", text: "Мастер техники: когда в твоих руках оживает любое «железо» и сеть", weights: ["111", "311"] },
+        { icon: "🛡️", text: "Супер-интуиция: замечать подозрительные детали во внешности или в интерфейсе", weights: ["204", "305"] },
+        { icon: "🤝", text: "Справедливость и помощь: защищать порядок и помогать жителям района", weights: ["310", "408"] },
+        { icon: "💼", text: "Финансовый гений: уметь считать деньги и создавать приложения для бизнеса", weights: ["215", "101"] }
+      ]
+    },
+    {
+      text: "В какой рабочей атмосфере ты видишь себя через несколько лет?",
+      options: [
+        { icon: "💻", text: "В IT-компании: разрабатываю мобильные сервисы, интерфейсы и пишу код", weights: ["101", "305", "401"] },
+        { icon: "🚨", text: "В силовых структурах или экспертном центре: на страже закона и безопасности", weights: ["204", "310"] },
+        { icon: "🏢", text: "В финансовом, торговом или социальном департаменте: работаю с людьми и бюджетами", weights: ["215", "408"] },
+        { icon: "🏭", text: "На высокотехнологичном объекте или в серверной: управляю климатом и сетями", weights: ["111", "311"] }
+      ]
+    },
+    {
+      text: "Представь, что в крупном торговом центре случилось ЧП. За что возьмешься ты?",
+      options: [
+        { icon: "🗄️", text: "Проверю логи базы данных и записи с помощью умных запросов", weights: ["304", "401"] },
+        { icon: "❄️", text: "Проверю, не перегрелись ли холодильные установки и работает ли локальная сеть", weights: ["111", "311"] },
+        { icon: "🕵️", text: "Опрошу свидетелей, сниму отпечатки и обеспечу правопорядок", weights: ["204", "310"] },
+        { icon: "📲", text: "Защищу приложение от сбоя и оценю финансовые и социальные последствия", weights: ["101", "305", "215", "408"] }
+      ]
+    },
+    {
+      text: "Финальный вопрос! Что ты хочешь попробовать своими руками уже через 10 минут?",
+      options: [
+        { icon: "📲", text: "Собрать мобильное приложение на 1С или написать программу с условиями", weights: ["101", "401"] },
+        { icon: "🔎", text: "Раскрыть дело как SQL-детектив или криминалист (фоторобот и дактилоскопия)", weights: ["304", "204"] },
+        { icon: "🌐", text: "Создать первую локальную сеть или познакомиться с холодильной техникой", weights: ["311", "111"] },
+        { icon: "💵", text: "Рассчитать настоящую зарплату или составить социальную карту района", weights: ["215", "408"] },
+        { icon: "🛡️", text: "Проверить интерфейс на безопасность или погрузиться в правоохранительную деятельность", weights: ["305", "310"] }
+      ]
+    }
+  ];
+
+  let currentStep = 0;
+  let scores = {};
+  let stepHistory = [];
+
+  function initScores() {
+    scores = {};
+    Object.keys(rooms).forEach(key => scores[key] = 0);
+    stepHistory = [];
+  }
+
+  function startQuiz() {
+    initScores();
+    currentStep = 0;
+    document.getElementById('start-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion(false);
+  }
+
+  function renderQuestion(animate = true) {
+    const q = questions[currentStep];
+    
+    // Обновляем прогресс и заголовок шага
+    document.getElementById('question-step').textContent = `Вопрос ${currentStep + 1} из ${questions.length}`;
+    document.getElementById('progress-fill').style.width = `${((currentStep + 1) / questions.length) * 100}%`;
+    
+    // Кнопка возврата видна начиная со 2-го вопроса
+    const prevBtn = document.getElementById('btn-prev');
+    if (currentStep > 0) {
+      prevBtn.classList.remove('hidden-nav');
+    } else {
+      prevBtn.classList.add('hidden-nav');
+    }
+
+    const wrapper = document.getElementById('question-wrapper');
+    if (animate) {
+      wrapper.classList.remove('fade-anim');
+      void wrapper.offsetWidth; // сброс reflow для анимации
+      wrapper.classList.add('fade-anim');
+    }
+
+    document.getElementById('question-title').textContent = q.text;
+
+    const optionsList = document.getElementById('options-list');
+    optionsList.innerHTML = '';
+
+    q.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.type = 'button';
+      btn.innerHTML = `<span class="option-icon">${opt.icon}</span><span class="option-text">${opt.text}</span>`;
+      btn.onclick = () => selectOption(opt.weights);
+      optionsList.appendChild(btn);
+    });
+
+    // На мобильных устройствах прокручиваем к началу карточки
+    if (window.scrollY > 40) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function selectOption(weights) {
+    stepHistory.push(weights);
+    weights.forEach(roomKey => {
+      if (scores[roomKey] !== undefined) {
+        scores[roomKey] += 1;
+      }
+    });
+
+    currentStep++;
+    if (currentStep < questions.length) {
+      renderQuestion(true);
+    } else {
+      showResults();
+    }
+  }
+
+  function prevQuestion() {
+    if (currentStep > 0 && stepHistory.length > 0) {
+      const lastWeights = stepHistory.pop();
+      lastWeights.forEach(roomKey => {
+        if (scores[roomKey] !== undefined) {
+          scores[roomKey] -= 1;
+        }
+      });
+      currentStep--;
+      renderQuestion(true);
+    }
+  }
+
+  function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    const resultScreen = document.getElementById('result-screen');
+    resultScreen.classList.remove('hidden');
+    resultScreen.classList.remove('fade-anim');
+    void resultScreen.offsetWidth;
+    resultScreen.classList.add('fade-anim');
+
+    const sortedRooms = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+    const topTwo = sortedRooms.slice(0, 2);
+
+    const container = document.getElementById('results-container');
+    container.innerHTML = '';
+
+    topTwo.forEach((roomKey, index) => {
+      const r = rooms[roomKey];
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML = `
+        <div class="room-badge">Маршрут №${index + 1}: ${r.number}</div>
+        <div class="workshop-title">${r.title}</div>
+        <div class="specialty-tag"><strong>Специальность:</strong> ${r.spec}</div>
+      `;
+      container.appendChild(card);
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function shareOrCopyResults() {
+    const sortedRooms = Object.keys(scores).sort((a, b) => scores[b] - scores[a]);
+    const topTwo = sortedRooms.slice(0, 2);
+    const textLines = [
+      "📍 Мой маршрут на Дне открытых дверей ЕЭТК:",
+      ...topTwo.map((key, i) => `${i + 1}. ${rooms[key].number}: ${rooms[key].title}\n(${rooms[key].spec})`),
+      "",
+      "Пройди навигатор и найди свои мастер-классы!"
+    ];
+    const shareText = textLines.join("\n");
+
+    if (navigator.share) {
+      navigator.share({
+        title: "Маршрут мастер-классов | ЕЭТК",
+        text: shareText
+      }).catch(err => {
+        if (err.name !== 'AbortError') {
+          copyToClipboard(shareText);
+        }
+      });
+    } else {
+      copyToClipboard(shareText);
+    }
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Маршрут скопирован! ✓");
+      }).catch(() => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try {
+      document.execCommand("copy");
+      showToast("Маршрут скопирован! ✓");
+    } catch (e) {
+      showToast("Не удалось скопировать");
+    }
+    document.body.removeChild(ta);
+  }
+
+  let toastTimeout = null;
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.textContent = msg;
+    toast.classList.add("show");
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(() => {
+      toast.classList.remove("show");
+    }, 2400);
+  }
+
+  function resetQuiz() {
+    startQuiz();
+  }
+</script>
+
+</body>
+</html>
